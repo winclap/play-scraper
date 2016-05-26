@@ -5,11 +5,7 @@ import logging
 
 import play_scraper.settings as s
 from play_scraper.lists import CATEGORIES, COLLECTIONS, AGE_RANGE
-from play_scraper.utils import (
-    build_url,
-    build_collection_url,
-    generate_post_data,
-    send_request)
+from play_scraper.utils import build_url, send_request
 
 
 logging.disable(logging.CRITICAL)
@@ -35,59 +31,6 @@ class TestBuildUrl(unittest.TestCase):
         self.assertEqual(build_url('developer', 'SQUARE ENIX INC'), expected)
 
 
-class TestBuildListUrl(BasicSetup):
-    def test_list_url_no_args(self):
-        expected = 'https://play.google.com/store/apps'
-        self.assertEqual(build_collection_url(), expected)
-
-    def test_list_url_only_category(self):
-        expected = 'https://play.google.com/store/apps/category/GAME_ACTION'
-        self.assertEqual(build_collection_url(category=self.category), expected)
-
-    def test_list_url_only_collection(self):
-        expected = 'https://play.google.com/store/apps/collection/topselling_free'
-        self.assertEqual(build_collection_url(collection=self.collection), expected)
-
-    def test_list_url_both_args(self):
-        expected = 'https://play.google.com/store/apps/category/GAME_ACTION/collection/topselling_free'
-        self.assertEqual(build_collection_url(
-            category=self.category, collection=self.collection), expected)
-
-
-class TestGeneratePostData(unittest.TestCase):
-    def setUp(self):
-        self.results = 40
-        self.page = 0
-        self.pag_tok = s.PAGE_TOKENS[2]
-
-    def test_default_post_data(self):
-        expected = {'ipf': 1, 'xhr': 1}
-        self.assertEqual(generate_post_data(), expected)
-
-    def test_only_num_results(self):
-        expected = {'ipf': 1, 'xhr': 1, 'num': self.results}
-        self.assertEqual(generate_post_data(self.results), expected)
-
-    def test_first_page_data(self):
-        expected = {
-            'ipf': 1,
-            'xhr': 1,
-            'start': self.page * self.results,
-            'num': self.results
-        }
-        self.assertEqual(generate_post_data(self.results, self.page), expected)
-
-    def test_page_token(self):
-        expected = {
-            'ipf': 1,
-            'xhr': 1,
-            'start': 0,
-            'num': 0,
-            'pagTok': self.pag_tok
-        }
-        self.assertEqual(generate_post_data(0, 0, self.pag_tok), expected)
-
-
 class TestSendRequest(unittest.TestCase):
     def setUp(self):
         self.url = 'https://www.google.com/'
@@ -109,6 +52,7 @@ class TestSendRequest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.url, expected_url)
+
 
 if __name__ == '__main__':
     unittest.main()

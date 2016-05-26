@@ -8,7 +8,7 @@ A web scraper for the Google Play Android app store.
 
 __version__ = '0.1.11'
 
-from .api import details, collection, developer, suggestions, search, similar
+from .api import details
 
 
 # Set default logging handler to avoid "No handler found" warnings.
