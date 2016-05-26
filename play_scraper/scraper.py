@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import re
 try:
     from urlparse import urljoin
 except ImportError:
@@ -103,8 +104,8 @@ class PlayScraper(object):
             size = size.string.strip()
 
         try:
-            installs = [int(n.replace(',', '')) for n in additional_info.select_one(
-                'div[itemprop="numDownloads"]').string.strip().split(" - ")]
+            installs = [int(re.sub(r'[,.]?', '', n)) for n in re.findall(r'\d{1,3}(?:[,.]\d{3})*', 
+                additional_info.select_one('div[itemprop="numDownloads"]').string.strip())]
         except AttributeError:
             installs = [0, 0]
 
