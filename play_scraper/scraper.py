@@ -2,19 +2,22 @@
 
 import json
 import logging
-try:
-    from urllib import quote_plus
-    from urlparse import urljoin
-except ImportError:
-    from urllib.parse import urljoin, quote_plus
-
+import re
 import requests
+
+from urllib.parse import urljoin, quote_plus
+
 from bs4 import BeautifulSoup, SoupStrainer
 
 from . import settings as s
 from .lists import CATEGORIES, COLLECTIONS, AGE_RANGE
-from .utils import (build_url, build_collection_url, send_request,
-    generate_post_data, multi_app_request)
+from .utils import (
+    build_collection_url,
+    build_url,
+    generate_post_data,
+    multi_app_request,
+    send_request,
+)
 
 
 class PlayScraper(object):
@@ -106,7 +109,6 @@ class PlayScraper(object):
                 video = video.split('?')[0]
         except AttributeError:
             video = None
-            pass
 
         # Main category will be first
         category = [c.attrs['href'].split('/')[-1] for c in soup.select('.category')]
@@ -124,7 +126,6 @@ class PlayScraper(object):
             score = float(soup.select_one('meta[itemprop="ratingValue"]').attrs['content'])
         except AttributeError:
             score = None
-            pass
 
         histogram = {}
         try:
@@ -135,11 +136,11 @@ class PlayScraper(object):
                 histogram[5 - i] = ratings[i]
         except AttributeError:
             reviews = 0
-            pass
 
         recent_changes = "\n".join([x.string.strip() for x in soup.select('div.recent-change')])
         top_developer = bool(soup.select_one('meta[itemprop="topDeveloperBadgeUrl"]'))
         editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
+
         try:
             price = soup.select_one('meta[itemprop="price"]').attrs['content']
         except AttributeError:
@@ -152,17 +153,24 @@ class PlayScraper(object):
 
         # Additional information section
         additional_info = soup.select_one('div.metadata div.details-section-contents')
-        updated = additional_info.select_one('div[itemprop="datePublished"]')
-        if updated:
-            updated = updated.string
 
-        size = additional_info.select_one('div[itemprop="fileSize"]')
-        if size:
+        updated = 'Not Available'
+        try:
+            updated = additional_info.select_one('div[itemprop="datePublished"]')
+            updated = updated.string
+        except AttributeError:
+            pass
+
+        size = 'Not Available'
+        try:
+            size = additional_info.select_one('div[itemprop="fileSize"]')
             size = size.string.strip()
+        except AttributeError:
+            pass
 
         try:
-            installs = [int(n.replace(',', '')) for n in additional_info.select_one(
-                'div[itemprop="numDownloads"]').string.strip().split(" - ")]
+            installs = [int(re.sub(r'[,.]?', '', n)) for n in re.findall(r'\d{1,3}(?:[,.]\d{3})*',
+                additional_info.select_one('div[itemprop="numDownloads"]').string.strip())]
         except AttributeError:
             installs = [0, 0]
 
@@ -188,7 +196,6 @@ class PlayScraper(object):
             interactive_elements = meta_info[i_elements_index].next_sibling.next_sibling.string.split(', ')
         except ValueError:
             interactive_elements = []
-            pass
 
         offers_iap = bool(soup.select_one('div.inapp-msg'))
         iap_range = None
@@ -198,7 +205,6 @@ class PlayScraper(object):
                 iap_range = meta_info[iap_price_index].next_sibling.next_sibling.string
             except ValueError:
                 iap_range = 'Not Available'
-                pass
 
         developer = soup.select_one('span[itemprop="name"]').string
 
@@ -290,7 +296,7 @@ class PlayScraper(object):
 
         try:
             response = send_request('GET', url)
-            soup = BeautifulSoup(response.content, 'lxml')
+            soup = BeautifulSoup(response.content, 'lxml', from_encoding='utf-8')
         except requests.exceptions.HTTPError as e:
             raise ValueError('Invalid application ID: {app}. {error}'.format(
                 app=app_id, error=e))

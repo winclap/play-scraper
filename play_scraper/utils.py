@@ -8,7 +8,7 @@ except ImportError:
     from urllib.parse import urljoin, quote_plus
 
 import requests
-import grequests
+# import grequests  # if a non monkey-patch version is available restore it
 from bs4 import BeautifulSoup, SoupStrainer
 
 from . import settings as s
@@ -16,7 +16,7 @@ from . import settings as s
 log = logging.getLogger(__name__)
 
 
-def _handle_grequest_exception(request, exception):
+def _handle_request_exception(request, exception):
     """Prints out the exception error from grequests."""
     log.error("{e} with {url}".format(e=exception, url=request.url))
     return None
@@ -140,17 +140,18 @@ def multi_app_request(apps, size=None, headers=None, verify=True):
     headers = default_headers() if headers is None else headers
 
     reqs = (
-        grequests.get(
+        # grequests.get(
+        requests.get(
             build_url('details', app_id),
             headers=headers,
             verify=verify) for app_id in apps)
 
-    responses = grequests.map(
-        reqs,
-        size=size,
-        exception_handler=_handle_grequest_exception)
+    # responses = grequests.map(
+    #     reqs,
+    #     size=size,
+    #     exception_handler=_handle_request_exception)
 
-    return responses
+    return reqs
 
 
 # Unused

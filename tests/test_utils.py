@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import unittest
 import logging
+import unittest
 
 import play_scraper.settings as s
-from play_scraper.lists import CATEGORIES, COLLECTIONS, AGE_RANGE
+from play_scraper.lists import AGE_RANGE, CATEGORIES, COLLECTIONS
 from play_scraper.utils import (
     build_url,
     build_collection_url,
     generate_post_data,
-    send_request)
+    send_request
+)
 
 
 logging.disable(logging.CRITICAL)
@@ -109,6 +110,7 @@ class TestSendRequest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.url, expected_url)
+
 
 if __name__ == '__main__':
     unittest.main()

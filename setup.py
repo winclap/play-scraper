@@ -31,8 +31,8 @@ setup(
     ],
     install_requires=[
         'beautifulsoup4>=4.4.1',
-        'grequests>=0.3.0',
-        'lxml>=3.6.0',
+        # 'grequests>=0.3.0',
+        'lxml>=3.7.3',
         'requests>=2.9.1',
     ],
 )

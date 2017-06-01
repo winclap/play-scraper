@@ -2,8 +2,8 @@
 
 import unittest
 
-from play_scraper.scraper import PlayScraper
 from play_scraper import settings
+from play_scraper.scraper import PlayScraper
 
 
 BASIC_KEYS = 10
