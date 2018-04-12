@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import requests
+import urllib.parse as urlparse
 
 from urllib.parse import urljoin, quote_plus
 
@@ -90,6 +91,8 @@ class PlayScraper(object):
         :param soup: a strained BeautifulSoup object of an app
         :return: a dictionary of app details
         """
+        url = soup.select_one('meta[property=og:url]').attrs['content']
+        app_id = urlparse.parse_qs(urlparse.urlparse(url).query)['id'][0]
         title = soup.select_one('h1[itemprop=name]').string
         icon = urljoin(
             self._base_url,
@@ -181,6 +184,8 @@ class PlayScraper(object):
             content_rating = 'Not Available'
 
         return {
+            'app_id': app_id,
+            'url': url,
             'title': title,
             'icon': icon,
             'screenshots': screenshots,
@@ -268,10 +273,7 @@ class PlayScraper(object):
             raise ValueError('Invalid application ID: {app}. {error}'.format(
                 app=app_id, error=e))
 
-        details = self._parse_app_details(soup)
-        details.update({'app_id': app_id, 'url': url})
-
-        return details
+        return self._parse_app_details(soup)
 
     def collection(self, collection, category=None, results=None, page=None, age=None, detailed=False):
         """Sends a POST request and fetches a list of applications belonging to
