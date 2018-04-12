@@ -135,6 +135,8 @@ class PlayScraper(object):
         except AttributeError:
             reviews = 0
 
+        editors_choice = bool(soup.select_one('meta[itemprop="editorsChoiceBadgeUrl"]'))
+
         try:
             price = soup.select_one('meta[itemprop="price"]').attrs['content']
         except AttributeError:
@@ -190,6 +192,7 @@ class PlayScraper(object):
             'reviews': reviews,
             'description': description,
             'description_html': description_html,
+            'editors_choice': editors_choice,
             'price': price,
             'free': free,
             'updated': updated,
