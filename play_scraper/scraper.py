@@ -243,7 +243,7 @@ class PlayScraper(object):
         :param soup: a strained BeautifulSoup object of an app
         :return: a dictionary of app additional details
         """
-        additional_info = soup.select_one('div.xyOfqd')
+        additional_info = soup.select_one('div.IxB2fe')
         additional_info_sections = additional_info.select('div.hAyfc')
 
         sections_data = {}
